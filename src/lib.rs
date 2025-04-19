@@ -1,10 +1,9 @@
 #![allow(non_snake_case)]
 
 use k256::{
-    elliptic_curve::{sec1::ToEncodedPoint, Field, PrimeField},
     ProjectivePoint, Scalar,
+    elliptic_curve::{Field, PrimeField, sec1::ToEncodedPoint},
 };
-
 use rand_core::OsRng;
 use sha2::{Digest, Sha256};
 
@@ -198,7 +197,7 @@ pub fn compute_nonce_point(r: &Scalar) -> ProjectivePoint {
 /// - X is the public key
 /// - m is the message
 /// - H is SHA-256
-fn compute_challenge(R: &ProjectivePoint, X: &ProjectivePoint, msg: &[u8]) -> Scalar {
+pub fn compute_challenge(R: &ProjectivePoint, X: &ProjectivePoint, msg: &[u8]) -> Scalar {
     let mut hasher = Sha256::new();
     let R_enc = R.to_encoded_point(false);
     let X_enc = X.to_encoded_point(false);

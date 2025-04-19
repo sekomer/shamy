@@ -2,7 +2,6 @@
 
 A simple Rust library exploring Shamir's Secret Sharing and threshold Schnorr signatures.
 
-
 ## Features
 
 - [x] **Lagrange Interpolation**
@@ -22,6 +21,12 @@ cargo build
 
 ```bash
 cargo test
+```
+
+## Examples
+
+```bash
+cargo run --example 2of3
 ```
 
 ## Flow and Math
