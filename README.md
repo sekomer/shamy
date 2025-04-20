@@ -6,7 +6,7 @@ A simple Rust library exploring Shamir's Secret Sharing and threshold Schnorr si
 
 - [x] **Lagrange Interpolation**
 - [x] **Threshold Schnorr Signatures**
-- [ ] **Verifiable Secret Sharing (VSS)**
+- [x] **Verifiable Secret Sharing (VSS)**
 - [ ] **Two‑Nonce Commit‑and‑Reveal (FROST)**
 
 ## Building
@@ -29,7 +29,7 @@ cargo test
 cargo run --example 2of3
 ```
 
-## Flow and Math
+## Schnorr Signature
 
 ```
 [FLOW]
@@ -66,4 +66,35 @@ cargo run --example 2of3
    │     = r*G + c*x*G │
    │     = R + c*X     │
    └───────────────────┘
+```
+
+## Verifiable Secret Sharing
+
+```
+[FLOW]
+┌──────────┐     ┌────────────┐     ┌─────────────────┐
+│  Secret  │     │ Polynomial │     │   Commitments   │
+│    s     │────►│    f(x)    │────►│ C[j] = G * a_j  │
+└──────────┘     └────────────┘     └─────────────────┘
+                       │                  │
+                       │                  │
+                       ▼                  │
+                 ┌────────────┐           │
+                 │   Shares   │◄──────────┘
+                 │    s[i]    │
+                 └────────────┘
+                       │
+                       │
+                       ▼
+                ┌──────────────┐
+                │Reconstruction│
+                │    t-of-n    │
+                └──────────────┘
+
+[MATH]
+   ┌─────────────────────────────┐
+   │ f(x) = s + a₁x + a₂x² + ... │
+   │ C[i] = f(i)*G               │
+   │ Verify: s[i]*G = C[i]       │
+   └─────────────────────────────┘
 ```
