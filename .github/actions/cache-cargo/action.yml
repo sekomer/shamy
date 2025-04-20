@@ -1,0 +1,22 @@
+name: Cache Cargo
+description: Cache Rust dependencies and installed binaries
+runs:
+  using: "composite"
+  steps:
+    - name: Cache cargo registry and build
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cargo/registry/index/
+          ~/.cargo/registry/cache/
+          ~/.cargo/git/db/
+          target/
+        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+        restore-keys: ${{ runner.os }}-cargo-
+
+    - name: Cache installed cargo binaries
+      uses: actions/cache@v3
+      with:
+        path: ~/.cargo/bin/
+        key: ${{ runner.os }}-cargo-bin
+        restore-keys: ${{ runner.os }}-cargo-bin

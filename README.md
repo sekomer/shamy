@@ -1,5 +1,8 @@
 # Shamy
 
+![ci](https://github.com/sekomer/shamy/actions/workflows/ci.yml/badge.svg)
+[![codecov](https://codecov.io/gh/sekomer/shamy/branch/main/graph/badge.svg)](https://codecov.io/gh/sekomer/shamy)
+
 A simple Rust library exploring Shamir's Secret Sharing and threshold Schnorr signatures.
 
 ## Features
