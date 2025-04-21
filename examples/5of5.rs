@@ -7,8 +7,8 @@ use shamy::shamir;
 use shamy::threshold::{self, Participant};
 
 fn main() {
-    let n = 3;
-    let t = 2;
+    let n = 5;
+    let t = 5;
     let keygen_output = shamir::shamir_keygen(n, t);
 
     let msg = b"rust is best";

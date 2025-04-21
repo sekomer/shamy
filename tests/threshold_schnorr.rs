@@ -11,11 +11,12 @@ fn test_threshold_schnorr_3_5() {
     let mut rng = rng();
     let n = 5;
     let t = 3;
-    let (participants, public_key) = shamir_keygen(n, t);
+    let keygen_output = shamir_keygen(n, t);
 
     let msg = b"Hello threshold schnorr!";
 
-    let chosen_participants: Vec<Participant> = participants
+    let chosen_participants: Vec<Participant> = keygen_output
+        .participants
         .iter()
         .choose_multiple(&mut rng, t)
         .into_iter()
@@ -38,7 +39,7 @@ fn test_threshold_schnorr_3_5() {
         .collect::<Vec<_>>();
     let R = aggregate_nonce(&nonces.as_slice(), &ids);
 
-    let c = compute_challenge(&R, &public_key, msg);
+    let c = compute_challenge(&R, &keygen_output.public_key, msg);
 
     let partials = nonce_pairs
         .iter()
@@ -46,19 +47,20 @@ fn test_threshold_schnorr_3_5() {
         .collect::<Vec<_>>();
 
     let signature = finalize_signature_lagrange(&partials, R);
-    assert!(signature.verify(msg, &public_key));
+    assert!(signature.verify(msg, &keygen_output.public_key));
 }
 
 #[test]
 fn test_threshold_schnorr_5_5_valid() {
     let n = 5;
     let t = 5;
-    let (participants, public_key) = shamir_keygen(n, t);
+    let keygen_output = shamir_keygen(n, t);
 
     let msg = b"Full participation test";
-    let ids: Vec<u64> = participants.iter().map(|p| p.id).collect();
+    let ids: Vec<u64> = keygen_output.participants.iter().map(|p| p.id).collect();
 
-    let nonce_pairs = participants
+    let nonce_pairs = keygen_output
+        .participants
         .iter()
         .map(|p| {
             let r_i = generate_nonce();
@@ -74,7 +76,7 @@ fn test_threshold_schnorr_5_5_valid() {
         .collect::<Vec<_>>();
     let R = aggregate_nonce(&nonces.as_slice(), &ids);
 
-    let c = compute_challenge(&R, &public_key, msg);
+    let c = compute_challenge(&R, &keygen_output.public_key, msg);
 
     let partials = nonce_pairs
         .iter()
@@ -82,19 +84,19 @@ fn test_threshold_schnorr_5_5_valid() {
         .collect::<Vec<_>>();
 
     let sig = finalize_signature_lagrange(&partials, R);
-    assert!(sig.verify(msg, &public_key));
+    assert!(sig.verify(msg, &keygen_output.public_key));
 }
 
 #[test]
 fn test_invalid_signature_wrong_participants() {
     let n = 5;
     let t = 5;
-    let (participants, public_key) = shamir_keygen(n, t);
+    let keygen_output = shamir_keygen(n, t);
 
     let msg = b"Wrong participant set";
 
     // threshold is 5 but only 3 participants are signing
-    let signers = &participants[0..3];
+    let signers = &keygen_output.participants[0..3];
 
     let signer_ids: Vec<u64> = signers.iter().map(|p| p.id).collect();
 
@@ -114,7 +116,7 @@ fn test_invalid_signature_wrong_participants() {
         .collect::<Vec<_>>();
     let R = aggregate_nonce(&nonces.as_slice(), &signer_ids);
 
-    let c = compute_challenge(&R, &public_key, msg);
+    let c = compute_challenge(&R, &keygen_output.public_key, msg);
 
     let partials = nonce_pairs
         .iter()
@@ -122,17 +124,18 @@ fn test_invalid_signature_wrong_participants() {
         .collect::<Vec<_>>();
 
     let sig = finalize_signature_lagrange(&partials, R);
-    assert!(!sig.verify(msg, &public_key));
+    assert!(!sig.verify(msg, &keygen_output.public_key));
 }
 
 #[test]
 fn test_threshold_signature_equals_manual_combined_signature() {
     let n = 5;
     let t = 3;
-    let (participants, _) = shamir_keygen(n, t);
+    let keygen_output = shamir_keygen(n, t);
 
     let mut rng = rng();
-    let chosen: Vec<Participant> = participants
+    let chosen: Vec<Participant> = keygen_output
+        .participants
         .iter()
         .choose_multiple(&mut rng, t)
         .into_iter()
@@ -192,11 +195,12 @@ fn test_threshold_signature_equals_manual_combined_signature() {
 fn test_compare_signatures_of_different_subsets() {
     let n = 5;
     let t = 3;
-    let (participants, public_key) = shamir_keygen(n, t);
+    let keygen_output = shamir_keygen(n, t);
 
     let msg = b"Hello threshold schnorr!";
 
-    let chosen_participants: Vec<Participant> = participants.iter().take(t).copied().collect();
+    let chosen_participants: Vec<Participant> =
+        keygen_output.participants.iter().take(t).copied().collect();
 
     let ids: Vec<u64> = chosen_participants.iter().map(|p| p.id).collect();
 
@@ -214,7 +218,7 @@ fn test_compare_signatures_of_different_subsets() {
         .collect::<Vec<_>>();
     let R = aggregate_nonce(&nonces.as_slice(), &ids);
 
-    let c = compute_challenge(&R, &public_key, msg);
+    let c = compute_challenge(&R, &keygen_output.public_key, msg);
 
     let partials = nonce_pairs
         .iter()
@@ -222,12 +226,17 @@ fn test_compare_signatures_of_different_subsets() {
         .collect::<Vec<_>>();
 
     let signature = finalize_signature_lagrange(&partials, R);
-    assert!(signature.verify(msg, &public_key));
+    assert!(signature.verify(msg, &keygen_output.public_key));
 
     // ---------------------------
 
-    let rev_chosen_participants: Vec<Participant> =
-        participants.iter().rev().take(t).copied().collect();
+    let rev_chosen_participants: Vec<Participant> = keygen_output
+        .participants
+        .iter()
+        .rev()
+        .take(t)
+        .copied()
+        .collect();
 
     let ids: Vec<u64> = rev_chosen_participants.iter().map(|p| p.id).collect();
 
@@ -237,7 +246,7 @@ fn test_compare_signatures_of_different_subsets() {
         .collect::<Vec<_>>();
     let rev_public_key = aggregate_public_key(&public_keys);
 
-    assert_eq!(public_key, rev_public_key);
+    assert_eq!(keygen_output.public_key, rev_public_key);
 
     let mut nonce_pairs = Vec::new();
     for p in &rev_chosen_participants {

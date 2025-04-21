@@ -9,13 +9,14 @@ use shamy::threshold::*;
 fn test_invalid_signature_wrong_message() {
     let n = 3;
     let t = 3;
-    let (participants, public_key) = shamir_keygen(n, t);
+    let keygen_output = shamir_keygen(n, t);
 
     let correct_msg = b"Correct message";
     let tampered_msg = b"Wrong message";
-    let ids: Vec<u64> = participants.iter().map(|p| p.id).collect();
+    let ids: Vec<u64> = keygen_output.participants.iter().map(|p| p.id).collect();
 
-    let nonce_pairs = participants
+    let nonce_pairs = keygen_output
+        .participants
         .iter()
         .map(|p| {
             let r_i = generate_nonce();
@@ -31,7 +32,7 @@ fn test_invalid_signature_wrong_message() {
         .collect::<Vec<_>>();
     let R = aggregate_nonce(&nonces.as_slice(), &ids);
 
-    let c = compute_challenge(&R, &public_key, correct_msg);
+    let c = compute_challenge(&R, &keygen_output.public_key, correct_msg);
 
     let partials = nonce_pairs
         .iter()
@@ -39,19 +40,20 @@ fn test_invalid_signature_wrong_message() {
         .collect::<Vec<_>>();
 
     let sig = finalize_signature_lagrange(&partials, R);
-    assert!(!sig.verify(tampered_msg, &public_key));
+    assert!(!sig.verify(tampered_msg, &keygen_output.public_key));
 }
 
 #[test]
 fn test_valid_signature_deterministic() {
     let n = 4;
     let t = 4;
-    let (participants, public_key) = shamir_keygen(n, t);
+    let keygen_output = shamir_keygen(n, t);
 
     let msg = b"Repeat verification";
-    let ids: Vec<u64> = participants.iter().map(|p| p.id).collect();
+    let ids: Vec<u64> = keygen_output.participants.iter().map(|p| p.id).collect();
 
-    let nonce_pairs = participants
+    let nonce_pairs = keygen_output
+        .participants
         .iter()
         .map(|p| {
             let r_i = generate_nonce();
@@ -67,7 +69,7 @@ fn test_valid_signature_deterministic() {
             acc + (*R_i * lambda)
         });
 
-    let c = compute_challenge(&R, &public_key, msg);
+    let c = compute_challenge(&R, &keygen_output.public_key, msg);
 
     let partials = nonce_pairs
         .iter()
@@ -77,6 +79,6 @@ fn test_valid_signature_deterministic() {
     let sig = finalize_signature_lagrange(&partials, R);
 
     for _ in 0..50 {
-        assert!(sig.verify(msg, &public_key));
+        assert!(sig.verify(msg, &keygen_output.public_key));
     }
 }

@@ -1,8 +1,15 @@
 #![allow(non_snake_case)]
 
 use crate::threshold::*;
+use crate::vss::calculate_commitment;
 use k256::{ProjectivePoint, Scalar, elliptic_curve::Field};
 use rand_core::OsRng;
+
+pub struct KeygenOutput {
+    pub participants: Vec<Participant>,
+    pub public_key: ProjectivePoint,
+    pub commitments: Vec<ProjectivePoint>,
+}
 
 /// generate a random polynomial of degree t-1.
 /// a_0 = secret, a_1, ..., a_{t-1} = random scalars
@@ -28,11 +35,18 @@ pub fn eval_polynomial(coeffs: &[Scalar], id: u64) -> Scalar {
 }
 
 /// Create n Shamir shares for threshold t.
-/// Returns (participants, public_key).
-pub fn shamir_keygen(n: usize, t: usize) -> (Vec<Participant>, ProjectivePoint) {
+/// Returns (participants, public_key, commitments).
+pub fn shamir_keygen(n: usize, t: usize) -> KeygenOutput {
     assert!(t >= 2 && t <= n);
     let secret = Scalar::random(&mut OsRng);
     let poly = random_polynomial(secret, t);
+
+    let public_key = ProjectivePoint::GENERATOR * secret;
+
+    let commitments = poly
+        .iter()
+        .map(|c| calculate_commitment(*c))
+        .collect::<Vec<_>>();
 
     let participants: Vec<Participant> = (1..=n as u64)
         .map(|id| {
@@ -42,6 +56,9 @@ pub fn shamir_keygen(n: usize, t: usize) -> (Vec<Participant>, ProjectivePoint) 
         })
         .collect();
 
-    let public_key = ProjectivePoint::GENERATOR * secret;
-    (participants, public_key)
+    KeygenOutput {
+        participants,
+        public_key,
+        commitments,
+    }
 }
