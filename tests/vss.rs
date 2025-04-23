@@ -1,6 +1,8 @@
-use k256::{Scalar, elliptic_curve::Field};
+use k256::{
+    Scalar,
+    elliptic_curve::{Field, rand_core::OsRng},
+};
 use rand::{Rng, rng};
-use rand_core::OsRng;
 use shamy::vss::calculate_commitment;
 use shamy::{shamir::*, vss::verify_commitment};
 

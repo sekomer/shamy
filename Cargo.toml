@@ -5,10 +5,24 @@ edition = "2024"
 
 [dependencies]
 rand = "0.9.0"
-rand_core = "0.6.4"
+rand_core = "0.9.3"
 k256 = "0.13.3"
 sha2 = "0.10"
+clap = { version = "4.5", features = ["derive"] }
+hex = "0.4"
 
 [[example]]
 name = "2of3"
 path = "examples/2of3.rs"
+
+[[example]]
+name = "5of5"
+path = "examples/5of5.rs"
+
+[[example]]
+name = "vss"
+path = "examples/vss.rs"
+
+[[bin]]
+name = "shamy"
+path = "src/bin/cli/main.rs"

@@ -32,7 +32,7 @@ fn main() {
         .iter()
         .map(|signer| {
             let r_i = nonces.get(&signer.id).unwrap();
-            threshold::partial_sign(signer, *r_i, c)
+            threshold::partial_sign(signer, r_i, &c)
         })
         .collect::<Vec<_>>();
 

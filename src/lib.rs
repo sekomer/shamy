@@ -2,6 +2,7 @@ pub mod frost;
 pub mod schnorr;
 pub mod shamir;
 pub mod threshold;
+pub mod util;
 pub mod vss;
 
 /*

@@ -2,9 +2,8 @@
 
 use k256::{
     ProjectivePoint, Scalar,
-    elliptic_curve::{Field, PrimeField, sec1::ToEncodedPoint},
+    elliptic_curve::{Field, PrimeField, rand_core::OsRng, sec1::ToEncodedPoint},
 };
-use rand_core::OsRng;
 use sha2::{Digest, Sha256};
 
 #[derive(Debug, Clone, Copy)]

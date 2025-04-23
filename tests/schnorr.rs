@@ -36,7 +36,7 @@ fn test_invalid_signature_wrong_message() {
 
     let partials = nonce_pairs
         .iter()
-        .map(|(p, r_i, _)| partial_sign(p, *r_i, c))
+        .map(|(p, r_i, _)| partial_sign(p, r_i, &c))
         .collect::<Vec<_>>();
 
     let sig = finalize_signature_lagrange(&partials, R);
@@ -73,7 +73,7 @@ fn test_valid_signature_deterministic() {
 
     let partials = nonce_pairs
         .iter()
-        .map(|(p, r_i, _)| partial_sign(p, *r_i, c))
+        .map(|(p, r_i, _)| partial_sign(p, r_i, &c))
         .collect::<Vec<_>>();
 
     let sig = finalize_signature_lagrange(&partials, R);

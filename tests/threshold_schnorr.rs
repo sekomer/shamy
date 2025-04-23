@@ -43,7 +43,7 @@ fn test_threshold_schnorr_3_5() {
 
     let partials = nonce_pairs
         .iter()
-        .map(|(p, r_i, _)| partial_sign(p, *r_i, c))
+        .map(|(p, r_i, _)| partial_sign(p, r_i, &c))
         .collect::<Vec<_>>();
 
     let signature = finalize_signature_lagrange(&partials, R);
@@ -80,7 +80,7 @@ fn test_threshold_schnorr_5_5_valid() {
 
     let partials = nonce_pairs
         .iter()
-        .map(|(p, r_i, _)| partial_sign(p, *r_i, c))
+        .map(|(p, r_i, _)| partial_sign(p, r_i, &c))
         .collect::<Vec<_>>();
 
     let sig = finalize_signature_lagrange(&partials, R);
@@ -120,7 +120,7 @@ fn test_invalid_signature_wrong_participants() {
 
     let partials = nonce_pairs
         .iter()
-        .map(|(p, r_i, _)| partial_sign(p, *r_i, c))
+        .map(|(p, r_i, _)| partial_sign(p, r_i, &c))
         .collect::<Vec<_>>();
 
     let sig = finalize_signature_lagrange(&partials, R);
@@ -182,7 +182,7 @@ fn test_threshold_signature_equals_manual_combined_signature() {
     // threshold signature from partials
     let partials: Vec<PartialSignature> = nonce_pairs
         .iter()
-        .map(|(p, r_i, _)| partial_sign(p, *r_i, c))
+        .map(|(p, r_i, _)| partial_sign(p, r_i, &c))
         .collect();
 
     let threshold_signature = finalize_signature_lagrange(&partials, R);
@@ -222,7 +222,7 @@ fn test_compare_signatures_of_different_subsets() {
 
     let partials = nonce_pairs
         .iter()
-        .map(|(p, r_i, _)| partial_sign(p, *r_i, c))
+        .map(|(p, r_i, _)| partial_sign(p, r_i, &c))
         .collect::<Vec<_>>();
 
     let signature = finalize_signature_lagrange(&partials, R);
@@ -266,13 +266,11 @@ fn test_compare_signatures_of_different_subsets() {
 
     let partials = nonce_pairs
         .iter()
-        .map(|(p, r_i, _)| partial_sign(p, *r_i, c))
+        .map(|(p, r_i, _)| partial_sign(p, r_i, &c))
         .collect::<Vec<_>>();
 
     let rev_signature = finalize_signature_lagrange(&partials, R);
 
-    println!("signature: {:?}", signature);
-    println!("rev_signature: {:?}", rev_signature);
     assert_ne!(signature.R, rev_signature.R);
     assert_ne!(signature.s, rev_signature.s);
 }

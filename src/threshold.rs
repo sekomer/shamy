@@ -15,6 +15,13 @@ pub struct Participant {
     pub X_i: ProjectivePoint,
 }
 
+impl Participant {
+    pub fn from_secret(id: u64, x_i: Scalar) -> Self {
+        let X_i = ProjectivePoint::GENERATOR * x_i;
+        Self { id, x_i, X_i }
+    }
+}
+
 #[derive(Debug, Clone, Copy)]
 pub struct PartialSignature {
     pub id: u64,
@@ -67,7 +74,7 @@ pub fn lagrange_coefficient(id_i: u64, ids: &[u64]) -> Scalar {
 /// - r_i is the participant's nonce
 /// - c is the challenge
 /// - x_i is the participant's secret key
-pub fn partial_sign(participant: &Participant, r_i: Scalar, c: Scalar) -> PartialSignature {
+pub fn partial_sign(participant: &Participant, r_i: &Scalar, c: &Scalar) -> PartialSignature {
     PartialSignature {
         id: participant.id,
         s_i: r_i + (participant.x_i * c),

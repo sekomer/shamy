@@ -2,8 +2,10 @@
 
 use crate::threshold::*;
 use crate::vss::calculate_commitment;
-use k256::{ProjectivePoint, Scalar, elliptic_curve::Field};
-use rand_core::OsRng;
+use k256::{
+    ProjectivePoint, Scalar,
+    elliptic_curve::{Field, rand_core::OsRng},
+};
 
 pub struct KeygenOutput {
     pub participants: Vec<Participant>,
