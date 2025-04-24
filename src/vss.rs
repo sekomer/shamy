@@ -8,7 +8,7 @@ pub fn calculate_commitment(c: Scalar) -> ProjectivePoint {
 }
 
 /// verifies a participant's share against a set of commitments using Feldman's VSS scheme
-pub fn verify_commitment(id: u64, x_i: Scalar, commitments: &[ProjectivePoint]) -> bool {
+pub fn verify_share(id: u64, x_i: Scalar, commitments: &[ProjectivePoint]) -> bool {
     /*
      * verification:
      *

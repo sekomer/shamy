@@ -4,7 +4,7 @@ use k256::{
 };
 use rand::{Rng, rng};
 use shamy::vss::calculate_commitment;
-use shamy::{shamir::*, vss::verify_commitment};
+use shamy::{shamir::*, vss::verify_share};
 
 #[test]
 fn test_verify_commitment_valid() {
@@ -23,7 +23,7 @@ fn test_verify_commitment_valid() {
     let p_id = rng.random_range(1..=n);
     let x_i = eval_polynomial(&coefs, p_id);
 
-    let is_valid = verify_commitment(p_id, x_i, &commitments);
+    let is_valid = verify_share(p_id, x_i, &commitments);
 
     assert!(is_valid);
 }
@@ -47,7 +47,7 @@ fn test_verify_commitment_invalid_coefs() {
         .map(|c| calculate_commitment(*c))
         .collect::<Vec<_>>();
 
-    let is_valid = verify_commitment(p_id, x_i, &wrong_commitments);
+    let is_valid = verify_share(p_id, x_i, &wrong_commitments);
 
     assert!(!is_valid);
 }
@@ -71,6 +71,6 @@ fn test_verify_commitment_invalid_id() {
 
     let wrong_id = p_id + 1;
 
-    let is_valid = verify_commitment(wrong_id, x_i, &commitments);
+    let is_valid = verify_share(wrong_id, x_i, &commitments);
     assert!(!is_valid);
 }
