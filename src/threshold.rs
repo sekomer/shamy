@@ -49,10 +49,21 @@ pub fn aggregate_nonce(nonces: &[(u64, ProjectivePoint)], ids: &[u64]) -> Projec
         })
 }
 
-/// compute the Lagrange coefficient λᵢ for participant i in the set of participants.
-/// λᵢ = Π (j / (j - i)) for all j ≠ i
-/// where j and i are participant IDs.
-/// https://en.wikipedia.org/wiki/Polynomial_interpolation
+//--------------------------------------------------------------------
+// λᵢ  (Lagrange weight at z = 0)
+//--------------------------------------------------------------------
+//
+// General form
+//   λⱼ(z₀) = ∏_{k∈T, k≠iⱼ} (z₀ − k)/(iⱼ − k) (mod q)
+//   f(z₀)  = Σ_{j∈T} λⱼ(z₀) · f(iⱼ)          (mod q)
+//
+// For Schnorr we need f(0) ⇢ secret key, so take z₀ = 0:
+//   λᵢ = ∏_{j∈S, j≠i}  j / (j − i)            (mod q)
+//
+// Multiplying each share f(i) by its λᵢ lets us recover f(0)
+// (or any other linear expression that involves f(0)).
+// https://en.wikipedia.org/wiki/Polynomial_interpolation
+//
 pub fn lagrange_coefficient(id_i: u64, ids: &[u64]) -> Scalar {
     let id_i_scalar = Scalar::from(id_i);
     let mut num = Scalar::ONE;
@@ -81,11 +92,20 @@ pub fn partial_sign(participant: &Participant, r_i: &Scalar, c: &Scalar) -> Part
     }
 }
 
-/// combine partial signatures using Lagrange interpolation to produce the final signature.
-/// s = Σ λᵢ·sᵢ
-/// where:
-/// - λᵢ is the Lagrange coefficient for participant i
-/// - sᵢ is the partial signature from participant i
+//--------------------------------------------------------------------
+// Aggregate partial signatures
+//--------------------------------------------------------------------
+// Combine t partial Schnorr signatures into one.
+//
+//   R = Σ (λ_i * R_i)
+//   s = Σ λ_i * s_i
+//
+// Each partial response is affine in its share:
+//     sᵢ = rᵢ + c · f(i)
+//
+// Because of that linearity,
+//     s = Σ λᵢ sᵢ = r + c · f(0)   where r = Σ λᵢ rᵢ, and f(0) is the private key
+//
 pub fn finalize_signature_lagrange(
     partials: &[PartialSignature],
     R: ProjectivePoint,
